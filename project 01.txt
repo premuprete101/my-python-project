@@ -1,44 +1,28 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import random
 
-# -----------------------------
-# 1. Generate 10-Year Data
-# -----------------------------
-dates = pd.date_range(start="2015-01-01", end="2024-12-31", freq="D")
+# Read dataset
+data = pd.read_csv("weather.csv")
 
-temperatures = []
-for date in dates:
-    if date.month in [12, 1, 2]:      # Winter
-        temp = random.uniform(-5, 20)
-    elif date.month in [6, 7, 8]:     # Summer
-        temp = random.uniform(30, 45)
-    else:                             # Other months
-        temp = random.uniform(10, 35)
-    temperatures.append(round(temp, 2))
+# Convert Date column to datetime
+data["Date"] = pd.to_datetime(data["Date"])
 
-data = pd.DataFrame({
-    "Date": dates,
-    "Temperature": temperatures
-})
+# Create Year and Month columns
+data["Year"] = data["Date"].dt.year
+data["Month"] = data["Date"].dt.month
 
-# -----------------------------
-# 2. Categorize Temperature
-# -----------------------------
+# Categorize temperature
 def categorize(temp):
-    if temp < 0:
+    if temp <= 0:
         return "Freezing"
-    elif temp <= 35:
+    elif temp < 30:
         return "Normal"
     else:
         return "Boiling"
 
 data["Category"] = data["Temperature"].apply(categorize)
 
-# -----------------------------
-# 3. Hottest & Coldest Month
-# -----------------------------
-data["Month"] = data["Date"].dt.month
+# Find hottest and coldest months
 monthly_avg = data.groupby("Month")["Temperature"].mean()
 
 hottest_month = monthly_avg.idxmax()
@@ -47,14 +31,11 @@ coldest_month = monthly_avg.idxmin()
 print("Hottest Month:", hottest_month)
 print("Coldest Month:", coldest_month)
 
-# -----------------------------
-# 4. 10-Year Temperature Trend
-# -----------------------------
-data["Year"] = data["Date"].dt.year
+# Yearly temperature trend
 yearly_avg = data.groupby("Year")["Temperature"].mean()
 
-plt.figure()
-yearly_avg.plot()
+# Plot graph
+plt.plot(yearly_avg.index, yearly_avg.values)
 plt.title("10-Year Temperature Trend")
 plt.xlabel("Year")
 plt.ylabel("Average Temperature (°C)")
