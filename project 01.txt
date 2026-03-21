@@ -2,7 +2,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Read dataset
-data = pd.read_csv("weather.csv")
+try:
+    data = pd.read_csv("weather.csv")
+except FileNotFoundError:
+    print("Error: weather.csv file nahi mili. Same folder me file rakho.")
+    exit()
 
 # Convert Date column to datetime
 data["Date"] = pd.to_datetime(data["Date"])
